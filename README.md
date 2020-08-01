@@ -1,10 +1,13 @@
-# Morphological Tokenizer
+## Morphological Tokenizer
 
 Morphological tokenizer for Russian is able to split words into morphemes: prefixes, roots, infixes and postfixes 
 
 ![img](https://sun4-16.userapi.com/NGih2EKrWiPGqxnM2UvrBHrqgK2RcifpL_ADxw/GsPww6CXevs.jpg)
 
-# Get started 
+## Get started
+
+``` mwclient ``` module is required 
+
 
 ```
 
@@ -49,3 +52,9 @@ morph.define('картограф')
 [' [[специалист]] в области [[картографии]] {{пример|}}', ' ']
 
 ```
+
+## Use Case
+
+In Russian language one can convert a verb into verbal noun (e.g. создать -> создание). So, it would be useful to 
+convert a verbal noun into a verb because some rule-based algorithms work with verb phrases to extract entities from 
+a sentence.
