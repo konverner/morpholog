@@ -27,11 +27,15 @@ print(result)
 
 ```
 
-\*- prefix
-\* - root
--\* postfix
--\*- infix
-+\* - ending
+torken- : prefix
+
+token : root
+
+-token : postfix
+
+-token- : infix
+
++token : ending
 
 Also, Morpholog class is able to define a word and extract a root
 
