@@ -57,4 +57,15 @@ morph.define('картограф')
 
 In Russian language one can convert a verb into verbal noun (e.g. создать -> создание). So, it would be useful to 
 convert a verbal noun into a verb because some rule-based algorithms work with verb phrases to extract entities from 
-a sentence.
+a sentence. We can do it with knowing its morphological roots, for example
+
+```
+morph1 = Morpholog()
+
+result1 = morph1.get_roots('оплатить') # verb
+result2 = morph1.get_roots('оплата') # verbal noun
+
+print(result1, result2)
+['плат'] ['плат'] # they have same roots
+
+```
