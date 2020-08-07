@@ -6,7 +6,8 @@ Morphological tokenizer for Russian is able to split words into morphemes: prefi
 
 ## Get started
 
-``` mwclient ``` module is required 
+
+Tokenize word into morphemes:
 
 
 ```
@@ -14,19 +15,8 @@ Morphological tokenizer for Russian is able to split words into morphemes: prefi
 from morphological_tokenizer Morpholog
 
 morph = Morpholog()
-
-result = morph.parse('картограф')
-print(result)
-['карт', '-о-', 'граф']
-
-
-result = morph.parse('бравирование')
-print(result)
-['брав', '-ир-', '-ова', '-ниj', '+е']
-
-result = morph.parse('оформленный')
-print(result)
-['о-', 'формл', '-енн', '+ый']
+morph.tokenize('ДОИМПЕРИАЛИСТИЧЕСКИМИ')
+['до-', 'империал', '-ист-', '-ическ-', '+ми']
 
 ```
 
@@ -34,22 +24,23 @@ torken- : prefix
 
 token : root
 
--token : postfix
-
 -token- : infix
 
 +token : ending
 
-Also, Morpholog class is able to define a word and extract a root
+-token : postfix
+
+
+Get roots of word
 
 ```
 
-result = morph.get_roots('картограф')
-result
+from morphological_tokenizer Morpholog
+
+morph = Morpholog()
+morph.get_roots('картограф')
 ['карт', 'граф']
 
-morph.define('картограф')
-[' [[специалист]] в области [[картографии]] {{пример|}}', ' ']
 
 ```
 
