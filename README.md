@@ -26,8 +26,8 @@ Tokenize word into morphemes:
 from morphological_tokenizer Morpholog
 
 morph = Morpholog()
-morph.tokenize('ДОИМПЕРИАЛИСТИЧЕСКИМИ')
-['до-', 'империал', '-ист-', '-ическ-', '+ми']
+morph.tokenize('ДОИМПЕРИАЛИСТИЧЕСКИМ')
+['до-', 'империал', '-ист-', '-ическ-', '+им']
 
 ```
 
@@ -57,7 +57,7 @@ morph.get_roots('картограф')
 
 ## Use Case
 
-In Russian language one can convert a verb into verbal noun (e.g. создать -> создание). So, it would be useful to 
+In Russian language, one can convert a verb into verbal noun (e.g. создать -> создание). So, it would be useful to 
 convert a verbal noun into a verb because some rule-based algorithms work with verb phrases to extract entities from 
 a sentence. We can do it with knowing its morphological roots, for example
 
