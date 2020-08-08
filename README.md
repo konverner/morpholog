@@ -1,4 +1,4 @@
-[![pypi](https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg)](https://pypi.org/project/morpholog/)
+[![PyPI version](https://badge.fury.io/py/morpholog.svg)](https://badge.fury.io/py/morpholog)
 
 ## Morphological Tokenizer
 
