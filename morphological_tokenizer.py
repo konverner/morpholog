@@ -1,43 +1,51 @@
-import mwclient
-import re
+import pickle
+import pymorphy2
+import copy
+from os import path
 
-class Morpholog:
+class Morpholog(pymorphy2.MorphAnalyzer):
   def __init__(self):
-    self.base = mwclient.Site('ru.wiktionary.org')
+    super().__init__()
+    self.map = copy.deepcopy(pickle.load(open(path.join(path.dirname(__file__), "map.pickle"), 'rb')))
 
-  def parse(self, word):
-    result = None
-    page = self.base.pages[word]
-    temp = page.text().split("\n\n")
-    for i in range(len(temp)):
-      if ('морфо-ru' in temp[i]):
-        result = temp[i].split('|')[1:]
-    if (result != None):
-      result[-1] = result[-1].replace('}','')
-      if 'и=т' in result:
-        del result[result.index('и=т')]
-      if len(result[-1]) > 4:
-        del result[-1]
-      if '+' in result[-1]:
-        result[-1] = result[-1][:3]
-    return result
+
+  def tokenize(self,word):
+    
+    # flag is True if there is ending in word
+    flag = False
+    
+    normal_form = self.normalize(word)
+
+    word = word.lower()
+    if normal_form not in self.map.keys():
+      return [word]
+    tokenized = copy.deepcopy(self.map[normal_form])
+    if (tokenized == [] or tokenized == None):
+      tokenized = [normal_form]
+    if (word != normal_form):
+      temp = word
+      for i in range(len(tokenized)):
+        temp = temp.replace(tokenized[i].replace('-', ''), '')
+        if ('+' in tokenized[i]):
+          tokenized[i] = '+' + word[-(len(tokenized[i])-1):]
+          flag = True
+      if (flag == False):
+        tokenized.append("+"+temp)
+      return tokenized
+    
+    for i in range(len(tokenized)):
+      if ('j' in tokenized[i]):
+        tokenized[i] = tokenized[i].replace('j', '')
+    return tokenized
+
+
+  def normalize(self,word):
+    return self.parse(word)[0].normalized.word
   
-  def get_roots(self, word):
-    result = list()
-    temp = self.parse(word)
-    if (temp != None):
-      for i in range(len(temp)):
-        if ('-' not in temp[i] and '+' not in temp[i] and '=' not in temp[i]):
-          result.append(temp[i])
-      return result
-    else:
-      return None
-      
-  def define(self, word):
-    page = self.base.pages[word]
-    temp = page.text().split("\n\n")
-    for i in range(len(temp)):
-      if ('=== Значение ===' in temp[i]):
-        result = temp[i].split("\n#")[1:]
-        return result
-    return None
+  def get_roots(self,word):
+    morphemes = self.tokenize(word)
+    roots = list()
+    for morphem in morphemes:
+      if '-' not in morphem and '+' not in morphem:
+        roots.append(morphem)
+    return roots
