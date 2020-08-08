@@ -1,10 +1,21 @@
+[![pypi](https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg)](https://pypi.org/project/morpholog/)
+
 ## Morphological Tokenizer
 
 Morphological tokenizer for Russian is able to split words into morphemes: prefixes, roots, infixes and postfixes 
 
 ![img](https://sun4-16.userapi.com/NGih2EKrWiPGqxnM2UvrBHrqgK2RcifpL_ADxw/GsPww6CXevs.jpg)
 
+
 ## Get started
+
+Installation:
+
+```
+
+pip install morpholog
+
+```
 
 
 Tokenize word into morphemes:
