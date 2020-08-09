@@ -31,7 +31,7 @@ morph.tokenize('ДОИМПЕРИАЛИСТИЧЕСКИМ')
 
 ```
 
-torken- : prefix
+token- : prefix
 
 token : root
 
