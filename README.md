@@ -18,7 +18,7 @@ pip install morpholog
 
 ```
 
-### Documentation
+## Documentation
 
 1) Tokenize word into morphemes:
 
