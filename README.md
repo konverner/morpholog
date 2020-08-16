@@ -1,8 +1,9 @@
 [![PyPI version](https://badge.fury.io/py/morpholog.svg)](https://badge.fury.io/py/morpholog)
 
-## Morphological Tokenizer
+## Morpholog
 
-Morphological tokenizer for Russian is able to split words into morphemes: prefixes, roots, infixes and postfixes 
+Morpholog is tool for dealing with morphological structure of a russian word. 
+It can tokenize words into morphemes: prefixes, roots, infixes and postfixes, find same-root words and convert verbal noun into verb.  
 
 ![img](https://sun4-16.userapi.com/NGih2EKrWiPGqxnM2UvrBHrqgK2RcifpL_ADxw/GsPww6CXevs.jpg)
 
@@ -17,8 +18,7 @@ pip install morpholog
 
 ```
 
-
-Tokenize word into morphemes:
+1) Tokenize word into morphemes:
 
 
 ```
@@ -42,7 +42,7 @@ token : root
 -token : postfix
 
 
-Get roots of word
+2) Get roots of word
 
 ```
 
@@ -55,19 +55,38 @@ morph.get_roots('картограф')
 
 ```
 
-## Use Case
-
-In Russian language, one can convert a verb into verbal noun (e.g. создать -> создание). So, it would be useful to 
-convert a verbal noun into a verb because some rule-based algorithms work with verb phrases to extract entities from 
-a sentence. We can do it with knowing its morphological roots, for example
+3) Find same-root words of the given word
 
 ```
-morph1 = Morpholog()
 
-result1 = morph1.get_roots('оплатить') # verb
-result2 = morph1.get_roots('оплата') # verbal noun
+morph.root_words('город')
 
-print(result1, result2)
-['плат'] ['плат'] # they have same roots
+ROOT:  город
+['выгородить',
+ 'выгородиться',
+ 'городить',
+ 
+  ...
+ 
+ 'по-городски',
+ 'подгородить',
+ 'подгородный',
+ 'полгорода',
+ 'пригород',
+ 'пригородить',
+ 'пригородный',
+ 'разгородить',
+ 'разгородиться']
 
 ```
+
+4) Convert verbal noun into verb
+
+```
+
+morph.noun2verb('оформление')
+
+'оформить'
+
+```
+
