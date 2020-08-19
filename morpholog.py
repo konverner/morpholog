@@ -13,7 +13,7 @@ from os import path
 class Morpholog(pymorphy2.MorphAnalyzer):
   def __init__(self):
     super().__init__()
-    self.map = copy.deepcopy(pickle.load(open("/content/map.pickle", 'rb')))
+    self.map = copy.deepcopy(pickle.load(open(path.join(path.dirname(__file__), "map.pickle"), 'rb')))
     self.words = sorted(list(self.map.keys()))
     
     self.prefixes = ['с','вы','до','за','над','об','от','пере','по','под','анти','архи','де','дез','дис','ин','контр','ре','суб','экс','пре','при']
@@ -24,15 +24,20 @@ class Morpholog(pymorphy2.MorphAnalyzer):
   def root_words(self,word, print_root=False):
     result = []
 
-    root = self.get_roots(word)[0][0]
-    if (print_root == True):
-      print("ROOT: ", root)
+    roots = self.get_roots(word)
 
-    for word_i in self.words:
-      morphemes_i = self.map[word_i]
-      if (morphemes_i):
-        if (root in morphemes_i):
-          result.append(word_i)
+    for root in roots:
+      temp = []
+      if (print_root == True):
+        print("ROOT: ", root)
+
+      for word_i in self.words:
+        if (root in word_i):
+          roots_word_i = self.get_roots(word_i)
+          for root_word_i in roots_word_i:
+            if root_word_i == root:
+              temp.append(word_i)
+      result.append(temp)
       
     return result
 
@@ -41,28 +46,22 @@ class Morpholog(pymorphy2.MorphAnalyzer):
 
 
   def noun2verb(self,noun):
-    noun_morphems = self.tokenize(noun)[0]
-    for verb in self.words:
-      if (verb[0] > noun[0]):
-        return None 
-      verb_morphems = self.map[verb]
- 
 
-      if (verb_morphems and noun_morphems):
+    noun_root = self.get_roots(noun)[0]
+    noun_prefix = self.get_prefix(noun)
+
+    for word in self.words:
+      if (word[0] > noun[0]):
+          return None 
+      if (word[0] == noun[0]):
+        if ("INFN" in self.parse(word)[0].tag):
         
-        if ('-' in verb_morphems[0] and '-' in noun_morphems[0]
-          and verb_morphems[0] == noun_morphems[0]):
-          n = len(verb_morphems)
-          if (n > 3):
-            if (verb_morphems[1][:2] == noun_morphems[1][:2] and verb_morphems[-1] == '+ть'):
-              return verb
-          if (n > 1):
-            if (verb_morphems[1][:2] == noun_morphems[1][:2] and verb_morphems[-1] == 'ть'):
-              return verb
-
-        else:
-          if (verb_morphems[0] == noun_morphems[0]):
-            return verb
+          verb_root = self.get_roots(word)[0]
+          verb_prefix = self.get_prefix(word) 
+        
+          if (verb_prefix == noun_prefix):
+            if (verb_root == noun_root):
+              return word
 
   def _tokenize_unk(self,word):
     result = []
@@ -162,10 +161,31 @@ class Morpholog(pymorphy2.MorphAnalyzer):
   def normalize(self,word):
     return self.parse(word)[0].normalized.word
   
-  def get_roots(self,word):
-    morphemes = self.tokenize(word)
+  def get_roots(self,word):  
+    
+    if word in self.map.keys() and self.map[word] != []:
+      morphemes = self.map[word]
+    else:
+      morphemes = self.tokenize(word)[0]
+      
     roots = list()
-    for morphem in morphemes:
-      if '-' not in morphem and '+' not in morphem:
-        roots.append(morphem)
+    if morphemes != None: 
+      for morphem in morphemes:
+        if '-' not in morphem and '+' not in morphem:
+          roots.append(morphem) 
+    if roots == []:
+      return ['']
     return roots
+  
+  def get_prefix(self,word):
+    if word in self.map.keys():
+      morphemes = self.map[word]
+    else:
+      morphemes = self.tokenize(word)[0]
+    
+    if morphemes != None:
+      for morpheme in morphemes:
+        if len(morpheme) > 1:
+          if morpheme[-1] == '-':
+            return morpheme
+    return ''
