@@ -61,7 +61,7 @@ morph.get_roots('картограф')
 
 ```
 
-morph.root_words('город')
+morph.root_words('город',print_root=True)
 
 ROOT:  город
 ['выгородить',
@@ -90,5 +90,13 @@ morph.noun2verb('оформление')
 
 'оформить'
 
+```
+
+5) Check whether verb is transitive or not
+
+```
+morph.is_trans('бегать')
+
+False
 ```
 
