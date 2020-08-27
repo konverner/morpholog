@@ -3,7 +3,6 @@
 ## Morpholog
 
 Morpholog is tool for dealing with morphological structure of a russian word. 
-It can tokenize words into morphemes: prefixes, roots, infixes and postfixes, find same-root words and convert verbal noun into verb.  
 
 ![img](https://sun4-16.userapi.com/NGih2EKrWiPGqxnM2UvrBHrqgK2RcifpL_ADxw/GsPww6CXevs.jpg)
 
@@ -82,7 +81,7 @@ ROOT:  город
 
 ```
 
-4) Convert verbal noun into verb
+4) Convert a verbal noun into a verb
 
 ```
 
@@ -92,11 +91,31 @@ morph.noun2verb('оформление')
 
 ```
 
-5) Check whether verb is transitive or not
+4) Convert a particle into a verb
 
 ```
-morph.is_trans('бегать')
 
-False
+morph.ptcp2verb('отправленный')
+
+'отправить'
+
 ```
 
+### What about neologisms?
+
+Many neologisms are not presented in the dictionary, so, Morpholog 'makes guess' about it:
+
+```
+morph.tokenize('чилить')
+
+[['чил', '+ить']]
+
+morph.noun2verb('хайп')
+
+'хайпить'
+
+morph.noun2verb('хардкор')
+
+'хардкорить
+
+```
