@@ -2,7 +2,7 @@
 
 ## Morpholog
 
-Morpholog is tool for dealing with morphological structure of a russian word. 
+Morpholog is a tool for dealing with morphological structure of russian words. 
 
 ![img](https://sun4-16.userapi.com/NGih2EKrWiPGqxnM2UvrBHrqgK2RcifpL_ADxw/GsPww6CXevs.jpg)
 
