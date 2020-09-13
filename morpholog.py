@@ -1,6 +1,6 @@
 '''
 
-Constantin Werner , 18.08.2020
+Constantin Werner , 27.08.2020
 const.werner@gmail.com
 
 '''
@@ -15,7 +15,16 @@ class Morpholog(pymorphy2.MorphAnalyzer):
     super().__init__()
     self.map = copy.deepcopy(pickle.load(open(path.join(path.dirname(__file__), "map.pickle"), 'rb')))
     self.words = sorted(list(self.map.keys()))
+    self.util = dict() # it stores indecies of first occurences of words with the given first letter
     
+    for i in range(len(self.words)):
+      first_letter = self.words[i][0]
+      if first_letter not in self.util.keys():
+        self.util[first_letter] = i
+    
+
+    self.vowels = ['а', 'у', 'о', 'ы', 'и', 'э', 'я', 'ю', 'ё', 'е']
+    self.consonants =  ['б', 'в', 'г', 'д', 'ж', 'з', 'й', 'к', 'л', 'м', 'н', 'п', 'р', 'с', 'т', 'ф', 'х', 'ц', 'ч', 'ш', 'щ']
     self.prefixes = ['с','вы','до','за','над','об','от','пере','по','под','анти','архи','де','дез','дис','ин','контр','ре','суб','экс','пре','при']
     self.suffixes = ['ик','ек','ок','ёк','еньк','оньк','ечк','очк','ушк','юшк','ышк','ник','чик','щик','тель','ист','ск','ов','ев','н','ти','чь','ова','ева']
     self.postfixes = ['ся', 'cь']
@@ -25,6 +34,9 @@ class Morpholog(pymorphy2.MorphAnalyzer):
     result = []
 
     roots = self.get_roots(word)
+    
+    if roots == None:
+      return word
 
     for root in roots:
       temp = []
@@ -34,34 +46,112 @@ class Morpholog(pymorphy2.MorphAnalyzer):
       for word_i in self.words:
         if (root in word_i):
           roots_word_i = self.get_roots(word_i)
-          for root_word_i in roots_word_i:
-            if root_word_i == root:
-              temp.append(word_i)
+          if roots_word_i != None:
+            for root_word_i in roots_word_i:
+              if root_word_i == root:
+                temp.append(word_i)
       result.append(temp)
       
     return result
+  
+  def _get_most_similiar(self, target,cands):
+    
+    scores = dict()
+
+    for cand in cands:
+      scores[cand] = 0
+      for i in range(min(len(target),len(cand))):
+        if (target[i] == cand[i]):
+          scores[cand] += 1
+        elif ((target[i] == 'е' and cand[i] == 'и') or\
+              (target[i] == 'и' and cand[i] == 'е')):
+          scores[cand] += 1
+    
+    max_score = -1
+    max_cand = None 
+    for cand in cands:
+      if scores[cand] > max_score:
+        max_cand = cand
+        max_score = scores[cand]
+    return max_cand
+
+
 
   def is_trans(self,verb):
     return ('tran' in self.parse(verb)[0].tag)
 
 
+  def ptcp2verb(self,ptcp):
+
+    if ('PRTF' not in self.parse(ptcp)[0].tag and 'PRTS' not in self.parse(ptcp)[0].tag):
+      return None
+
+    ptcp_root = self.get_roots(ptcp)[0]
+    ptcp_prefix = self.get_prefix(ptcp)
+
+    # words that can be a verb we are looking for
+    candidates = []
+
+    idx = self.util[ptcp[0]]
+    for i in range(idx,len(self.words)):
+      word = self.words[i]
+      if (len(word) > 2): 
+        if (word[0] > ptcp[0] or word[1] > ptcp[1]):
+            break 
+        if (word[0] == ptcp[0]):
+          if ("INFN" in self.parse(word)[0].tag):
+            verb_morphemes = self.map[word]
+            if verb_morphemes != None and verb_morphemes != []: 
+              if '-' in verb_morphemes[0]:
+                if (verb_morphemes[0] == ptcp_prefix):
+                  if (len(verb_morphemes) > 1):
+                    if (verb_morphemes[1] == ptcp_root):
+                      candidates.append(word)
+              else:
+                if (verb_morphemes[0] == ptcp_root):
+                  candidates.append(word)
+
+    return self._get_most_similiar(ptcp,candidates)
+
   def noun2verb(self,noun):
+    if ('UNKN' in self.parse(noun)[0].tag):
+      if noun[-1] in self.consonants:
+        return noun + 'ить'
+      return noun + 'ть'
+
+    if ('NOUN' not in self.parse(noun)[0].tag):
+      return None
 
     noun_root = self.get_roots(noun)[0]
     noun_prefix = self.get_prefix(noun)
 
-    for word in self.words:
-      if (word[0] > noun[0]):
-          return None 
-      if (word[0] == noun[0]):
-        if ("INFN" in self.parse(word)[0].tag):
-        
-          verb_root = self.get_roots(word)[0]
-          verb_prefix = self.get_prefix(word) 
-        
-          if (verb_prefix == noun_prefix):
-            if (verb_root == noun_root):
-              return word
+    # words that can be a verb we are looking for
+    candidates = []
+
+    idx = self.util[noun[0]]
+    for i in range(idx,len(self.words)):
+      word = self.words[i]
+      if (len(word) > 2): 
+        if (word[0] > noun[0] or word[1] > noun[1]):
+            break 
+        if (word[0] == noun[0]):
+          if ("INFN" in self.parse(word)[0].tag):
+            verb_morphemes = self.map[word]
+            if verb_morphemes != None and verb_morphemes != []: 
+              if '-' in verb_morphemes[0]:
+                if (verb_morphemes[0] == noun_prefix):
+                  if (len(verb_morphemes) > 1):
+                    if (verb_morphemes[1] == noun_root):
+                      candidates.append(word)
+              else:
+                if (verb_morphemes[0] == noun_root):
+                  candidates.append(word)
+    if candidates == []:
+      if noun[-1] in self.consonants:
+        return noun + 'ить'
+      return noun + 'ть'
+    return self._get_most_similiar(noun,candidates)
+
 
   def _tokenize_unk(self,word):
     result = []
@@ -116,7 +206,6 @@ class Morpholog(pymorphy2.MorphAnalyzer):
       
 
   def tokenize(self,data):
-    
     result = list()
 
     data = data.split(' ')
@@ -131,7 +220,6 @@ class Morpholog(pymorphy2.MorphAnalyzer):
         normal_form = self.normalize(word)
       else:
         normal_form = word
-
       if normal_form not in self.words:
         result.append(self._tokenize_unk(normal_form))
       
@@ -154,7 +242,6 @@ class Morpholog(pymorphy2.MorphAnalyzer):
           if ('j' in tokenized[i]):
             tokenized[i] = tokenized[i].replace('j', '')
         result.append(tokenized)
-    
     return result
 
 
@@ -174,7 +261,7 @@ class Morpholog(pymorphy2.MorphAnalyzer):
         if '-' not in morphem and '+' not in morphem:
           roots.append(morphem) 
     if roots == []:
-      return ['']
+      return None
     return roots
   
   def get_prefix(self,word):
@@ -189,3 +276,15 @@ class Morpholog(pymorphy2.MorphAnalyzer):
           if morpheme[-1] == '-':
             return morpheme
     return ''
+
+  def get_ending(self,word):
+    if word in self.map.keys():
+      morphemes = self.map[word]
+    else:
+      morphemes = self.tokenize(word)[0]
+
+    if morphemes != None:
+      for morpheme in morphemes:
+        if (len(morpheme) > 1):
+          if morpheme[0] == '+':
+            return morpheme
